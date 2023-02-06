@@ -15,10 +15,12 @@ class Conversations(models.Model):
 
 class AdminChannel(models.Model):
     group_id = models.BigIntegerField()
+    title = models.CharField(max_length=50)
 
 
 class BrokerChannel(models.Model):
     group_id = models.BigIntegerField()
+    title = models.CharField(max_length=50)
 
 
 class ConversationIdentifier(models.Model):

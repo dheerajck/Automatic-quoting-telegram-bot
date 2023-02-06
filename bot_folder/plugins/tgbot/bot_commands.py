@@ -99,4 +99,4 @@ async def questionaire(client, message):
         )
         final_data += "\n".join(question_answer)
 
-        await add_keyboad_button_and_send_text_message(client, user_id, final_data, "keyboard_button", "callback_data")
+        await add_keyboad_button_and_send_text_message(client, user_id, final_data, "submit", "submit")
