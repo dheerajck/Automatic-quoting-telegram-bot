@@ -1,6 +1,14 @@
 from pyrogram import Client, filters
 
-from db.models import Questions, Conversations, AdminChannel, BrokerChannel
+from db.models import (
+    Questions,
+    Conversations,
+    ConversationIdentifier,
+    ConversationBackups,
+    AdminChannel,
+    BrokerChannel,
+)
+from datetime import datetime, timezone
 
 
 @Client.on_message(filters.private & filters.command("start", prefixes="!"))
@@ -33,40 +41,44 @@ async def first_question(client, message):
 async def questionaire(client, message):
     user_id = message.from_user.id
     if not message.text:
-        return "No text message"
+        return None
 
     response = message.text
-    # current question if a question exist that user was asked
+    # question that was asked before, if there was a question left to ask
     question_answered_to_object = (
         await Conversations.objects.filter(user_id=user_id, response="").order_by("question_order").afirst()
     )
-    # if there was no question that user has to answer now
 
     if not question_answered_to_object:
+        # this user doesnt have a question that needs answer
         await message.reply("send start")
         return None
 
-        # question_count = await Questions.objects.all().acount()
-        # answer_count = (
-        #     await Conversations.objects.filter(user_id=user_id).exclude(response="").order_by("question_order").acount()
-        # )
-        # # if user has answered all questions
-        # if question_count == answer_count:
-        #     await message.reply("done")
-        #     # remove from here and update somewhere
-        #     return None
-
-        # else:
-        #     await message.reply("send start")
-        #     return None
-
+    # add answer to the question as response in Conversations table
     await Conversations.objects.filter(id=question_answered_to_object.id).aupdate(response=response)
 
+    # next question to ask if there is a question to  left to ask
     next_question_object = (
         await Conversations.objects.filter(user_id=user_id, response="").order_by("question_order").afirst()
     )
 
     if next_question_object:
+        # asking question
         await message.reply(next_question_object.question)
     else:
+        # this user have answered all the questions
+        QUERY = []
+        conversation_key = await ConversationIdentifier.objects.acreate(
+            user_id=user_id, added=datetime.now(timezone.utc)
+        )
+        async for conversation_data in Conversations.objects.filter(user_id=user_id).order_by("question_order"):
+            QUERY.append(
+                ConversationBackups(
+                    conversation_identifier=conversation_key,
+                    question_order=conversation_data.question_order,
+                    question=conversation_data.question_order,
+                    response=conversation_data.response,
+                )
+            )
+        await ConversationBackups.objects.abulk_create(QUERY)
         await message.reply("done")

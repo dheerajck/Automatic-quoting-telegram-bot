@@ -21,9 +21,13 @@ class BrokerChannel(models.Model):
     group_id = models.BigIntegerField()
 
 
-class ConversationBackups(models.Model):
-    convesation_id = models.BigIntegerField()
+class ConversationIdentifier(models.Model):
     user_id = models.BigIntegerField()
+    added = models.DateTimeField()
+
+
+class ConversationBackups(models.Model):
+    conversation_identifier = models.ForeignKey(ConversationIdentifier, on_delete=models.CASCADE)
     question_order = models.IntegerField()
     question = models.CharField(max_length=50)
     response = models.CharField(max_length=50)
