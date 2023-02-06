@@ -5,10 +5,9 @@ from db.models import (
     Conversations,
     ConversationIdentifier,
     ConversationBackups,
-    AdminChannel,
-    BrokerChannel,
 )
 from datetime import datetime, timezone
+from bot_folder.helpers import add_keyboad_button_and_send_text_message
 
 
 @Client.on_message(filters.private & filters.command("start", prefixes="!"))
@@ -24,8 +23,8 @@ async def start(client, message):
         )
     await Conversations.objects.abulk_create(QUERY)
 
-    async for i in Conversations.objects.all():
-        print(i.user_id, i.question, i.question_order, i.response)
+    # async for i in Conversations.objects.all():
+    #     print(i.user_id, i.question, i.question_order, i.response)
 
     await first_question(client, message)
 
@@ -67,18 +66,37 @@ async def questionaire(client, message):
         await message.reply(next_question_object.question)
     else:
         # this user have answered all the questions
+        # backing up conversations details
+        added_time = datetime.now(timezone.utc)
+        conversation_key = await ConversationIdentifier.objects.acreate(user_id=user_id, added=added_time)
+
         QUERY = []
-        conversation_key = await ConversationIdentifier.objects.acreate(
-            user_id=user_id, added=datetime.now(timezone.utc)
-        )
+        question_answer = []
+
         async for conversation_data in Conversations.objects.filter(user_id=user_id).order_by("question_order"):
+            question_answer.append(f"{conversation_data.question}\n{conversation_data.response}\n")
             QUERY.append(
                 ConversationBackups(
                     conversation_identifier=conversation_key,
                     question_order=conversation_data.question_order,
-                    question=conversation_data.question_order,
+                    question=conversation_data.question,
                     response=conversation_data.response,
                 )
             )
+
+        await Conversations.objects.filter(user_id=user_id).order_by("question_order").adelete()
         await ConversationBackups.objects.abulk_create(QUERY)
-        await message.reply("done")
+
+        # from datetime import datetime
+        # from zoneinfo import ZoneInfo
+        # current_time = datetime.now(tz=ZoneInfo("Asia/Kolkata"))
+        # current_time.strftime("%d %b %Y at %H:%M:%S %Z")
+        final_data = (
+            f"Date: {added_time.strftime('%d %b %Y at %H:%M:%S %Z')}\n"
+            f"UserID: {user_id}\n"
+            f"Name: {message.from_user.first_name} {message.from_user.last_name or ''}\n"
+            f"Username: {message.from_user.username or None}\n\n"
+        )
+        final_data += "\n".join(question_answer)
+
+        await add_keyboad_button_and_send_text_message(client, user_id, final_data, "keyboard_button", "callback_data")
