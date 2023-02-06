@@ -1,0 +1,28 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Virtual environments
+venv/
+v/
+
+# Sqlite db's
+*.db
+db.sqlite3
+
+# Log files
+*.log
+
+# Env files
+*.env
+
+# Pyrogram session files
+*.session
+*.session-journal
+
+# Django db migrations
+db/migrations/
