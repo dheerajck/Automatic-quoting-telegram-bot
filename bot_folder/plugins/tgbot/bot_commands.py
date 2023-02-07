@@ -23,9 +23,6 @@ async def start(client, message):
         )
     await Conversations.objects.abulk_create(QUERY)
 
-    # async for i in Conversations.objects.all():
-    #     print(i.user_id, i.question, i.question_order, i.response)
-
     await first_question(client, message)
 
 
@@ -84,19 +81,15 @@ async def questionaire(client, message):
                 )
             )
 
-        await Conversations.objects.filter(user_id=user_id).order_by("question_order").adelete()
         await ConversationBackups.objects.abulk_create(QUERY)
+        await Conversations.objects.filter(user_id=user_id).adelete()
 
-        # from datetime import datetime
-        # from zoneinfo import ZoneInfo
-        # current_time = datetime.now(tz=ZoneInfo("Asia/Kolkata"))
-        # current_time.strftime("%d %b %Y at %H:%M:%S %Z")
         final_data = (
             f"Date: {added_time.strftime('%d %b %Y at %H:%M:%S %Z')}\n"
             f"UserID: {user_id}\n"
             f"Name: {message.from_user.first_name} {message.from_user.last_name or ''}\n"
             f"Username: {message.from_user.username or None}\n\n"
         )
-        final_data += "\n".join(question_answer)
 
-        await add_keyboad_button_and_send_text_message(client, user_id, final_data, "submit", "submit")
+        final_data += "\n".join(question_answer)
+        await add_keyboad_button_and_send_text_message(client, user_id, final_data, "SUBMIT", "SUBMIT")
