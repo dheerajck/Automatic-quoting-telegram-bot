@@ -99,8 +99,8 @@ async def questionaire(client, message):
         final_data = (
             f"Date: {added_time.strftime('%d %b %Y at %H:%M:%S %Z')}\n"
             f"UserID: {user_id}\n"
-            f"Name: {message.from_user.first_name} {message.from_user.last_name or ''}\n"
-            f"Username: {message.from_user.username or None}\n\n"
+            f"Name: [{message.from_user.first_name} {message.from_user.last_name or ''}](tg://user?id={user_id})\n"
+            f"Username: {'@' + message.from_user.username if message.from_user.username else None}\n\n"
         )
 
         final_data += "\n".join(question_answer)

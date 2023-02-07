@@ -15,7 +15,7 @@ from simple_logging.standard_logging_loguru_interface_class import set_logger
 load_dotenv("bot_folder/.env")
 
 # set logging
-# set_logger()
+set_logger()
 
 # set uvloop
 uvloop.install()
