@@ -10,10 +10,17 @@ from datetime import datetime, timezone
 from bot_folder.helpers import add_keyboad_button_and_send_text_message
 
 
-@Client.on_message(filters.private & filters.command("start", prefixes="!"))
+@Client.on_message(filters.private & filters.command("start", prefixes="/"))
 async def start(client, message):
+    name = f"{message.from_user.first_name} {(message.from_user.last_name or '')}"
+    greetings = f"Hey {name} thank you for reaching out for a quote request, please click /newquote below and fill out all the information, the quote request will propagate to our network of trusted brokers with solid reputations, and we will get back to you wit the best options as soon as possible."
+
+    await message.reply(greetings)
+
+
+@Client.on_message(filters.private & filters.command("newquote", prefixes="/"))
+async def newquote(client, message):
     user_id = message.from_user.id
-    await message.reply("Hi")
     await Conversations.objects.filter(user_id=user_id).adelete()
 
     QUERY = []
@@ -48,7 +55,7 @@ async def questionaire(client, message):
 
     if not question_answered_to_object:
         # this user doesnt have a question that needs answer
-        await message.reply("send !start")
+        await message.reply("Send /newquote for new quote request")
         return None
 
     # add answer to the question as response in Conversations table

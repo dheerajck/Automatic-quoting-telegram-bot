@@ -8,7 +8,8 @@ from bot_folder.helpers import add_keyboad_button_and_send_text_message
 async def user_submit(client, callback_query):
     await callback_query.answer(cache_time=100)
     await callback_query.message.edit_text(callback_query.message.text, reply_markup=None)
-    await client.send_message(callback_query.message.chat.id, "done")
+    response = "Thank you for your request, we have begun sourcing the best offers across the verified brokers network, and will get back to you as soon as possible."
+    await client.send_message(callback_query.message.chat.id, response)
 
     # send it to admins
     async for group_id in AdminChannel.objects.all():
@@ -21,7 +22,8 @@ async def user_submit(client, callback_query):
 async def admin_choice(client, callback_query):
     await callback_query.answer(cache_time=100)
     await callback_query.message.edit_text(callback_query.message.text, reply_markup=None)
-    await client.send_message(callback_query.message.chat.id, "done")
+    response = "Quote sent to broker channel (link of message in broker channel)"
+    await client.send_message(callback_query.message.chat.id, response)
 
     new_data = callback_query.message.text.split("\n")[4:]
     new_data = "\n".join(new_data).strip()
