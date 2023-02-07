@@ -4,6 +4,8 @@ from db.models import BotAdmins
 
 from shared_config import shared_object
 
+from bot_folder.helpers import send_invalid_peer_or_username_error_method
+
 
 SUPER_ADMIN = shared_object.clients["super_admin"]
 
@@ -15,17 +17,9 @@ async def add_bot_admin(client, message):
     try:
         user = message_text.replace("!add_bot_admin", "", 1).strip()
         user_object = await client.get_users(user)
-        if user_object.username == SUPER_ADMIN:
-            message.stop_propagation()
-            return None
 
     except Exception:
-        try:
-            int(user)
-        except ValueError:
-            await message.reply("Invalid username")
-        else:
-            await message.reply("This bot hasnt seem this user yet, so cant resolve by id")
+        await send_invalid_peer_or_username_error_method(client, message, user)
         message.stop_propagation()
 
     else:
@@ -48,18 +42,11 @@ async def remove_bot_admin(client, message):
     try:
         user = message_text.replace("!remove_bot_admin", "", 1).strip()
         user_object = await client.get_users(user)
-        if user_object.username == SUPER_ADMIN:
-            message.stop_propagation()
-            return None
 
     except Exception:
-        try:
-            int(user)
-        except ValueError:
-            await message.reply("Invalid username")
-        else:
-            await message.reply("This bot hasnt seem this user yet, so cant resolve by id")
+        await send_invalid_peer_or_username_error_method(client, message, user)
         message.stop_propagation()
+
     else:
         name = user_object.first_name + (user_object.last_name or "")
         await BotAdmins.objects.filter(user_id=user_object.id).adelete()
