@@ -16,6 +16,7 @@ async def start(client, message):
     greetings = f"Hey {name} thank you for reaching out for a quote request, please click /newquote below and fill out all the information, the quote request will propagate to our network of trusted brokers with solid reputations, and we will get back to you wit the best options as soon as possible."
 
     await message.reply(greetings)
+    message.stop_propagation()
 
 
 @Client.on_message(filters.private & filters.command("newquote", prefixes="/"))
@@ -31,6 +32,7 @@ async def newquote(client, message):
     await Conversations.objects.abulk_create(QUERY)
 
     await first_question(client, message)
+    message.stop_propagation()
 
 
 async def first_question(client, message):
@@ -39,6 +41,8 @@ async def first_question(client, message):
     question = await Conversations.objects.filter(user_id=user_id, response="").order_by("question_order").afirst()
     if question:
         await message.reply(question.question)
+
+    message.stop_propagation()
 
 
 @Client.on_message(filters.private, group=1)

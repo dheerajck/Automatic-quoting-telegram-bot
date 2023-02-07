@@ -38,4 +38,3 @@ class ConversationBackups(models.Model):
 class BotAdmins(models.Model):
     user_id = models.BigIntegerField(unique=True)
     name = models.CharField(max_length=50)
-
