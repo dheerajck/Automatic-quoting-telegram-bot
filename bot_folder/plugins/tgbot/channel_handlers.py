@@ -34,7 +34,7 @@ async def add_admin_handler(client, message):
 
     if chat_object.type != enums.ChatType.PRIVATE:
         try:
-            await AdminChannel.objects.acreate(group_id=chat_object.id, title=message.chat_object.title)
+            await AdminChannel.objects.acreate(group_id=chat_object.id, title=chat_object.title)
             await message.reply(f"Added {message.chat.title} to admin groups")
         except IntegrityError:
             pass
@@ -55,7 +55,10 @@ async def list_admin_handler(client, message):
     output = ""
     async for channel in AdminChannel.objects.all():
         output += f"{channel.title } `{channel.group_id}`\n"
-    await message.reply(output, quote=False)
+    if output != "":
+        await message.reply(output, quote=False)
+    else:
+        await message.reply("No Admin channels present in db", quote=False)
     message.stop_propagation()
 
 
@@ -78,7 +81,7 @@ async def add_broker_handler(client, message):
 
     if chat_object.type != enums.ChatType.PRIVATE:
         try:
-            await BrokerChannel.objects.acreate(group_id=message.chat.id, title=message.chat.title)
+            await BrokerChannel.objects.acreate(group_id=chat_object.id, title=chat_object.title)
             await message.reply(f"Added {message.chat.title} to broker groups")
         except IntegrityError:
             pass
@@ -100,5 +103,8 @@ async def list_broker_handler(client, message):
     output = ""
     async for channel in BrokerChannel.objects.all():
         output += f"{channel.title } `{channel.group_id}`\n"
-    await message.reply(output, quote=False)
+    if output != "":
+        await message.reply(output, quote=False)
+    else:
+        await message.reply("No Broker channels present in db", quote=False)
     message.stop_propagation()
