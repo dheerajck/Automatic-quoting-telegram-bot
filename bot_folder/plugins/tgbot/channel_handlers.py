@@ -35,7 +35,7 @@ async def add_admin_handler(client, message):
     if chat_object.type != enums.ChatType.PRIVATE:
         try:
             await AdminChannel.objects.acreate(group_id=chat_object.id, title=chat_object.title)
-            await message.reply(f"Added {message.chat.title} to admin groups")
+            await message.reply(f"Added {chat_object.title} to admin groups")
         except IntegrityError:
             pass
 
@@ -46,15 +46,26 @@ async def add_admin_handler(client, message):
 
 @Client.on_message(filters.user(ADMINS) & filters.command("remove_admin", prefixes="!"))
 async def remove_admin_handler(client, message):
-    await AdminChannel.objects.filter(group_id=message.chat.id).adelete()
+    if len(message.command) == 1:
+        chat_object = message.chat
+    else:
+        chat = message.command[1]
+        try:
+            chat_object = await client.get_chat(chat)
+        except Exception as e:
+            await send_invalid_peer_or_username_error_method(client, message, chat)
+            message.stop_propagation()
+
+    await AdminChannel.objects.filter(group_id=chat_object.id).adelete()
     await message.reply(f"Removed {message.chat.title} from admin groups")
+    message.stop_propagation()
 
 
 @Client.on_message(filters.user(ADMINS) & filters.command("list_admin", prefixes="!"))
 async def list_admin_handler(client, message):
     output = ""
     async for channel in AdminChannel.objects.all():
-        output += f"{channel.title } `{channel.group_id}`\n"
+        output += f"{channel.title} `{channel.group_id}`\n"
     if output != "":
         await message.reply(output, quote=False)
     else:
@@ -82,7 +93,7 @@ async def add_broker_handler(client, message):
     if chat_object.type != enums.ChatType.PRIVATE:
         try:
             await BrokerChannel.objects.acreate(group_id=chat_object.id, title=chat_object.title)
-            await message.reply(f"Added {message.chat.title} to broker groups")
+            await message.reply(f"Added {chat_object.title} to broker groups")
         except IntegrityError:
             pass
 
@@ -93,7 +104,16 @@ async def add_broker_handler(client, message):
 
 @Client.on_message(filters.user(ADMINS) & filters.command("remove_broker", prefixes="!"))
 async def remove_broker_handler(client, message):
-    await BrokerChannel.objects.filter(group_id=message.chat.id).adelete()
+    if len(message.command) == 1:
+        chat_object = message.chat
+    else:
+        chat = message.command[1]
+        try:
+            chat_object = await client.get_chat(chat)
+        except Exception as e:
+            await send_invalid_peer_or_username_error_method(client, message, chat)
+            message.stop_propagation()
+    await BrokerChannel.objects.filter(group_id=chat_object.id).adelete()
     await message.reply(f"Removed {message.chat.title} to broker groups")
     message.stop_propagation()
 

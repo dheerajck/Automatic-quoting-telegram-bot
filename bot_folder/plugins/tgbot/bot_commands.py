@@ -13,7 +13,10 @@ from bot_folder.helpers import add_keyboad_button_and_send_text_message
 @Client.on_message(filters.private & filters.command("start", prefixes="/"))
 async def start(client, message):
     name = f"{message.from_user.first_name} {(message.from_user.last_name or '')}"
-    greetings = f"Hey {name} thank you for reaching out for a quote request, please click /newquote below and fill out all the information, the quote request will propagate to our network of trusted brokers with solid reputations, and we will get back to you wit the best options as soon as possible."
+    user_id = message.from_user.id
+    mention = f"[{name}](tg://user?id={user_id})"
+
+    greetings = f"Hey {mention} thank you for reaching out for a quote request, please click /newquote below and fill out all the information, the quote request will propagate to our network of trusted brokers with solid reputations, and we will get back to you wit the best options as soon as possible."
 
     await message.reply(greetings)
     message.stop_propagation()
@@ -96,10 +99,14 @@ async def questionaire(client, message):
         await ConversationBackups.objects.abulk_create(QUERY)
         await Conversations.objects.filter(user_id=user_id).adelete()
 
+        name = f""
+        user_id = message.from_user.id
+        mention = f"[{message.from_user.first_name} {(message.from_user.last_name or '')}](tg://user?id={user_id})"
+
         final_data = (
             f"Date: {added_time.strftime('%d %b %Y at %H:%M:%S %Z')}\n"
             f"UserID: {user_id}\n"
-            f"Name: [{message.from_user.first_name} {message.from_user.last_name or ''}](tg://user?id={user_id})\n"
+            f"Name: [{message.from_user.first_name} {(message.from_user.last_name or '')}](tg://user?id={user_id})\n"
             f"Username: {'@' + message.from_user.username if message.from_user.username else None}\n\n"
         )
 
