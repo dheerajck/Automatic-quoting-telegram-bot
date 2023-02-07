@@ -5,6 +5,7 @@ import uvloop
 from dotenv import load_dotenv
 
 from pyrogram import Client, compose
+from db.models import *
 
 from shared_config import shared_object
 from simple_logging.standard_logging_loguru_interface_class import set_logger
@@ -33,6 +34,10 @@ async def main():
     tgbot = Client("tgbot", api_id=api_id, api_hash=api_hash, bot_token=bot_token, plugins=plugins_tgbot)
 
     shared_object.clients["tgbot"] = tgbot
+
+    shared_object.clients["bot_admins"] = [
+        user_id async for user_id in BotAdmins.objects.all().values_list("user_id", flat=True)
+    ]
 
     apps = [tgbot]
     await compose(apps)

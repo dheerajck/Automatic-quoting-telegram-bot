@@ -14,12 +14,12 @@ class Conversations(models.Model):
 
 
 class AdminChannel(models.Model):
-    group_id = models.BigIntegerField()
+    group_id = models.BigIntegerField(unique=True)
     title = models.CharField(max_length=50)
 
 
 class BrokerChannel(models.Model):
-    group_id = models.BigIntegerField()
+    group_id = models.BigIntegerField(unique=True)
     title = models.CharField(max_length=50)
 
 
@@ -33,3 +33,9 @@ class ConversationBackups(models.Model):
     question_order = models.IntegerField()
     question = models.CharField(max_length=50)
     response = models.CharField(max_length=50)
+
+
+class BotAdmins(models.Model):
+    user_id = models.BigIntegerField(unique=True)
+    name = models.CharField(max_length=50)
+

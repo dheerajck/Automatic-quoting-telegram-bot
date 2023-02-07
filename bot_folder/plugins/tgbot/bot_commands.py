@@ -33,7 +33,7 @@ async def first_question(client, message):
     await message.reply(question.question)
 
 
-@Client.on_message(filters.private)
+@Client.on_message(filters.private, group=1)
 async def questionaire(client, message):
     user_id = message.from_user.id
     if not message.text:
