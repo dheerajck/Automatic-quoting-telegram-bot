@@ -30,7 +30,8 @@ async def first_question(client, message):
     # first question
     user_id = message.from_user.id
     question = await Conversations.objects.filter(user_id=user_id, response="").order_by("question_order").afirst()
-    await message.reply(question.question)
+    if question:
+        await message.reply(question.question)
 
 
 @Client.on_message(filters.private, group=1)
@@ -47,7 +48,7 @@ async def questionaire(client, message):
 
     if not question_answered_to_object:
         # this user doesnt have a question that needs answer
-        await message.reply("send start")
+        await message.reply("send !start")
         return None
 
     # add answer to the question as response in Conversations table
