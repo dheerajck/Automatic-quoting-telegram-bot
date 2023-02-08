@@ -51,7 +51,9 @@ async def admin_choice(client, callback_query):
     async for group in BrokerChannel.objects.all():
         try:
             temp_message = await client.send_message(group.group_id, new_data)
-            response = f"Quote sent to broker channel ([link of message in broker channel]({temp_message.link}))"
+            response = f"Quote sent to broker channel ([link of message in broker channel]({temp_message.link}))\n"
+            response += "To start a new quote send /newquote again"
+
             # print(temp_message)
             await client.send_message(callback_query.message.chat.id, response)
         except BadRequest as e:

@@ -5,12 +5,18 @@ class Questions(models.Model):
     question_order = models.IntegerField()
     question = models.CharField(max_length=50)
 
+    regex_pattern = models.CharField(max_length=50)
+    invalid_response = models.CharField(max_length=50)
+
 
 class Conversations(models.Model):
     user_id = models.BigIntegerField()
     question_order = models.IntegerField()
     question = models.CharField(max_length=50)
     response = models.CharField(max_length=50)
+
+    regex_pattern = models.CharField(max_length=50)
+    invalid_response = models.CharField(max_length=50)
 
 
 class AdminChannel(models.Model):

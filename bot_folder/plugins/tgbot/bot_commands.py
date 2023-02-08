@@ -6,8 +6,10 @@ from db.models import (
     ConversationIdentifier,
     ConversationBackups,
 )
+
 from datetime import datetime, timezone
 from bot_folder.helpers import add_keyboad_button_and_send_text_message
+from bot_folder.helpers import does_input_string_match_pattern
 
 
 @Client.on_message(filters.private & filters.command("start", prefixes="/"))
@@ -30,8 +32,15 @@ async def newquote(client, message):
     QUERY = []
     async for question_data in Questions.objects.all().order_by("question_order"):
         QUERY.append(
-            Conversations(user_id=user_id, question_order=question_data.question_order, question=question_data.question)
+            Conversations(
+                user_id=user_id,
+                question_order=question_data.question_order,
+                question=question_data.question,
+                regex_pattern=question_data.regex_pattern,
+                invalid_response=question_data.invalid_response,
+            )
         )
+
     await Conversations.objects.abulk_create(QUERY)
 
     await first_question(client, message)
@@ -54,7 +63,7 @@ async def questionaire(client, message):
     if not message.text:
         return None
 
-    response = message.text
+    response = message.text.strip()
     # question that was asked before, if there was a question left to ask
     question_answered_to_object = (
         await Conversations.objects.filter(user_id=user_id, response="").order_by("question_order").afirst()
@@ -64,6 +73,13 @@ async def questionaire(client, message):
         # this user doesnt have a question that needs answer
         await message.reply("Send /newquote for new quote request")
         return None
+
+    # print(question_answered_to_object.question, question_answered_to_object.regex_pattern)
+
+    if question_answered_to_object.regex_pattern:
+        if not await does_input_string_match_pattern(response, question_answered_to_object.regex_pattern):
+            await message.reply(question_answered_to_object.invalid_response)
+            return None
 
     # add answer to the question as response in Conversations table
     await Conversations.objects.filter(id=question_answered_to_object.id).aupdate(response=response)
@@ -99,9 +115,7 @@ async def questionaire(client, message):
         await ConversationBackups.objects.abulk_create(QUERY)
         await Conversations.objects.filter(user_id=user_id).adelete()
 
-        name = f""
         user_id = message.from_user.id
-        mention = f"[{message.from_user.first_name} {(message.from_user.last_name or '')}](tg://user?id={user_id})"
 
         final_data = (
             f"Date: {added_time.strftime('%d %b %Y at %H:%M:%S %Z')}\n"
