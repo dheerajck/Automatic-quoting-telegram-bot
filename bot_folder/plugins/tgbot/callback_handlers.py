@@ -12,11 +12,12 @@ async def user_submit(client, callback_query):
     await callback_query.answer(cache_time=100)
     await callback_query.message.edit_text(callback_query.message.text.html, reply_markup=None)
 
-    response = "Thank you for your request, we have begun sourcing the best offers across the verified brokers network, and will get back to you as soon as possible."
+    response = "Thank you for your request, we have begun sourcing the best offers across the verified brokers network, and will get back to you as soon as possible.\n"
+    response += "To start a new quote send /newquote again"
+
     await client.send_message(callback_query.message.chat.id, response)
 
     # send it to admins
-
     async for group in AdminChannel.objects.all():
         try:
             forwarded_message = await callback_query.message.forward(group.group_id)
@@ -51,8 +52,7 @@ async def admin_choice(client, callback_query):
     async for group in BrokerChannel.objects.all():
         try:
             temp_message = await client.send_message(group.group_id, new_data)
-            response = f"Quote sent to broker channel ([link of message in broker channel]({temp_message.link}))\n"
-            response += "To start a new quote send /newquote again"
+            response = f"Quote sent to broker channel ([link of message in broker channel]({temp_message.link}))"
 
             # print(temp_message)
             await client.send_message(callback_query.message.chat.id, response)
