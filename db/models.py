@@ -5,8 +5,8 @@ class Questions(models.Model):
     question_order = models.IntegerField()
     question = models.CharField(max_length=50)
 
-    regex_pattern = models.CharField(max_length=50)
-    invalid_response = models.CharField(max_length=50)
+    regex_pattern = models.CharField(max_length=50, default='')
+    invalid_response = models.CharField(max_length=50, default='')
 
 
 class Conversations(models.Model):
@@ -15,8 +15,8 @@ class Conversations(models.Model):
     question = models.CharField(max_length=50)
     response = models.CharField(max_length=50)
 
-    regex_pattern = models.CharField(max_length=50)
-    invalid_response = models.CharField(max_length=50)
+    regex_pattern = models.CharField(max_length=50, default='')
+    invalid_response = models.CharField(max_length=50, default='')
 
 
 class AdminChannel(models.Model):
