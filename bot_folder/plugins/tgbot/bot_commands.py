@@ -1,3 +1,5 @@
+import xxhash
+
 from pyrogram import Client, filters
 
 from db.models import (
@@ -38,6 +40,7 @@ async def newquote(client, message):
                 question=question_data.question,
                 regex_pattern=question_data.regex_pattern,
                 invalid_response=question_data.invalid_response,
+                private_question=question_data.private_question,
             )
         )
 
@@ -95,8 +98,9 @@ async def questionaire(client, message):
     else:
         # this user have answered all the questions
         # backing up conversations details
+
         added_time = datetime.now(timezone.utc)
-        conversation_key = await ConversationIdentifier.objects.acreate(user_id=user_id, added=added_time)
+        conversation_key = await ConversationIdentifier.objects.acreate(user_id=user_id, added=added_time, quote_id="")
 
         QUERY = []
         question_answer = []
@@ -109,6 +113,7 @@ async def questionaire(client, message):
                     question_order=conversation_data.question_order,
                     question=conversation_data.question,
                     response=conversation_data.response,
+                    private_question=conversation_data.private_question,
                 )
             )
 
@@ -125,4 +130,10 @@ async def questionaire(client, message):
         )
 
         final_data += "\n".join(question_answer)
+        final_data = final_data.strip()
+
+        quote_id = xxhash.xxh32(final_data.encode("utf-8"), seed=12718745).hexdigest()
+        await ConversationIdentifier.objects.filter(id=conversation_key.id).aupdate(quote_id=quote_id)
+        final_data = f"Quote ID: {quote_id}\n" + final_data
+
         await add_keyboad_button_and_send_text_message(client, user_id, final_data, "SUBMIT", "SUBMIT")

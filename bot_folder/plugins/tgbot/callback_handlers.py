@@ -45,15 +45,31 @@ async def admin_choice(client, callback_query):
     message_id = int(message_id)
 
     new_message = await client.get_messages(group_id, message_id)
-    # new_data = new_message.text.split("\n")[6:]
-    new_data = new_message.text[new_message.text.index("Quantity") :]
-    # new_data = "\n".join(new_data).strip()
+
+    final_message = new_message.text
+    quote_id = final_message.split("\n")[0].replace("Quote ID:", "").strip()
+    from db.models import ConversationIdentifier, ConversationBackups
+
+    question_answer = []
+
+    conversation_identifier_object = await ConversationIdentifier.objects.filter(quote_id=quote_id).afirst()
+
+    async for conversation_backup in ConversationBackups.objects.filter(
+        conversation_identifier=conversation_identifier_object.id
+    ).exclude(private_question=True):
+        question_answer.append(f"{conversation_backup.question}\n{conversation_backup.response}\n")
+
+    final_data = "\n".join(question_answer).strip()
+    final_data = f"Quote ID: {quote_id}\n" + final_data
+
+    # # new_data = new_message.text.split("\n")[6:]
+    # new_data = new_message.text[new_message.text.index("Quantity") :]
+    # # new_data = "\n".join(new_data).strip()
 
     async for group in BrokerChannel.objects.all():
         try:
-            temp_message = await client.send_message(group.group_id, new_data)
+            temp_message = await client.send_message(group.group_id, final_data)
             response = f"Quote sent to broker channel ([link of message in broker channel]({temp_message.link}))"
-
             # print(temp_message)
             await client.send_message(callback_query.message.chat.id, response)
         except BadRequest as e:

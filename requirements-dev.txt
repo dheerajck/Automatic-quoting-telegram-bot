@@ -2,6 +2,7 @@ Pyrogram==2.0.97
 TgCrypto==1.2.5
 django
 uvloop
+xxhash
 loguru
 python-dotenv
 black
