@@ -31,15 +31,22 @@ async def main():
         root="bot_folder.plugins.tgbot/",
     )
 
-    tgbot = Client("tgbot", api_id=api_id, api_hash=api_hash, bot_token=bot_token, plugins=plugins_tgbot)
+    bot = Client("tgbot", api_id=api_id, api_hash=api_hash, bot_token=bot_token, plugins=plugins_tgbot)
 
-    shared_object.clients["tgbot"] = tgbot
+    shared_object.clients["tgbot"] = bot
 
     shared_object.clients["bot_admins"] = [
         user_id async for user_id in BotAdmins.objects.all().values_list("user_id", flat=True)
     ]
 
-    apps = [tgbot]
+    async with bot:
+        bot_details = await bot.get_me()
+        await bot.send_message(
+            shared_object.clients["super_admin"],
+            f"@{bot_details.username} started",
+        )
+
+    apps = [bot]
     await compose(apps)
 
 

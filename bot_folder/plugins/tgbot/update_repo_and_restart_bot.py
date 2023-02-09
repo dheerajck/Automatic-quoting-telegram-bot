@@ -15,7 +15,7 @@ async def restart(client, message):
     # sys.executable
     # A string giving the absolute path of the executable binary for the Python interpreter like venv/bin/python3.11
     # print(sys.executable)
-
+    await message.reply("Restarting the bot with latest commit")
     execvp(sys.executable, [sys.executable, "-m", "bot_folder"])
 
 

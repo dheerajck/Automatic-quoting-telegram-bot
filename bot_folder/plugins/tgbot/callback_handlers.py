@@ -53,7 +53,7 @@ async def user_submit(client, callback_query):
     await Conversations.objects.filter(user_id=user_id).adelete()
 
     response_to_user = (
-        f"Thank you for your request, we have begun sourcing the best offers across the verified brokers network, and will get back to you as soon as possible.\n"
+        "Thank you for your request, we have begun sourcing the best offers across the verified brokers network, and will get back to you as soon as possible.\n"
         "To start a new quote send /newquote again"
     )
 

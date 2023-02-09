@@ -14,3 +14,5 @@ async def logfile(client, message):
         await message.reply_document(document="logfile.log", quote=True)
     except ValueError as error:
         await message.reply(error, quote=True)
+
+    message.stop_propagation()
