@@ -1,6 +1,6 @@
 import logging
 
-from datetime import datetime
+from datetime import datetime, timezone
 import xxhash
 
 from pyrogram import Client, filters
@@ -26,6 +26,7 @@ async def user_submit(client, callback_query):
 
     added_time_str = final_message.split("\n")[0].replace("Date: ", "").strip()
     added_time = datetime.strptime(added_time_str, '%d %b %Y at %H:%M:%S %Z')
+    added_time = added_time.replace(tzinfo=timezone.utc)
 
     user_id = callback_query.from_user.id
 
