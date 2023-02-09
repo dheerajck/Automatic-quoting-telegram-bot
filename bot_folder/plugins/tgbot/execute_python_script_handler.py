@@ -22,7 +22,7 @@ def execute_python_code_function(code):
     return temp_file
 
 
-@Client.on_message(filters.user(SUPER_ADMIN) & filters.command("models", prefixes="!"))
+@Client.on_message(filters.user(SUPER_ADMIN) & filters.command("list_models", prefixes="!"))
 async def models(client, message):
     message_text: str = message.text.replace("!orm", "", 1).strip()
     if message_text == "":
@@ -50,6 +50,8 @@ list_models()
     temp_file = execute_python_code_function(code)
     await message.reply_document(temp_file)
 
+    message.stop_propagation()
+
 
 @Client.on_message(filters.user(SUPER_ADMIN) & filters.command("orm", prefixes="!"))
 async def orm(client, message):
@@ -63,3 +65,5 @@ async def orm(client, message):
 
     temp_file = execute_python_code_function(code)
     await message.reply_document(temp_file)
+
+    message.stop_propagation()

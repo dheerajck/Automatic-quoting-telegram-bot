@@ -27,6 +27,8 @@ async def makemigration_handler(client, message):
 
     await message.reply_document(temp_file)
 
+    message.stop_propagation()
+
 
 @Client.on_message(filters.user(SUPER_ADMIN) & filters.command("migrate", prefixes="!"))
 async def migrate_handler(client, message):
@@ -45,3 +47,5 @@ async def migrate_handler(client, message):
     temp_file.write(result.encode())
 
     await message.reply_document(temp_file)
+
+    message.stop_propagation()
