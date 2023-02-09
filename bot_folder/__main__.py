@@ -5,11 +5,11 @@ import uvloop
 from dotenv import load_dotenv
 
 from pyrogram import Client, compose
-from db.models import *
 
-from shared_config import shared_object
 from simple_logging.standard_logging_loguru_interface_class import set_logger
 
+from shared_config import shared_object
+from db.models import BotAdmins
 
 # load env
 load_dotenv("bot_folder/.env")

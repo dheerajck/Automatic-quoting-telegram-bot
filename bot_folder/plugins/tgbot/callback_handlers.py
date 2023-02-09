@@ -1,5 +1,6 @@
 import logging
 
+from datetime import datetime
 import xxhash
 
 from pyrogram import Client, filters
@@ -14,9 +15,6 @@ from db.models import (
 )
 
 from bot_folder.helpers import add_keyboad_button_and_send_text_message
-
-
-from datetime import datetime
 
 
 @Client.on_callback_query(filters.regex("SUBMIT"))
@@ -68,7 +66,7 @@ async def user_submit(client, callback_query):
 
     async for group in AdminChannel.objects.all():
         try:
-            forwarded_message = await callback_query.message.forward(group.group_id)
+            await callback_query.message.forward(group.group_id)
             await add_keyboad_button_and_send_text_message(
                 client,
                 group.group_id,
