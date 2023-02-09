@@ -1,11 +1,9 @@
 from pyrogram import Client, filters
 
-from db.models import (
-    Questions,
-    Conversations,
-)
+from db.models import Questions, Conversations
 
-from datetime import datetime, timezone
+from django.utils import timezone
+
 from bot_folder.helpers import add_keyboad_button_and_send_text_message
 from bot_folder.helpers import does_input_string_match_pattern
 
@@ -100,7 +98,7 @@ async def questionaire(client, message):
         # this user have answered all the questions
         # backing up conversations details
 
-        added_time = datetime.now(timezone.utc)
+        added_time = timezone.now()
 
         question_answer = []
 

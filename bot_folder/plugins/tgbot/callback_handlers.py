@@ -16,7 +16,7 @@ from db.models import (
 from bot_folder.helpers import add_keyboad_button_and_send_text_message
 
 
-from datetime import datetime, timezone
+from datetime import datetime
 
 
 @Client.on_callback_query(filters.regex("SUBMIT"))
@@ -26,7 +26,6 @@ async def user_submit(client, callback_query):
 
     final_message = callback_query.message.text.markdown.strip()
 
-    # added_time = datetime.now(timezone.utc)
     added_time_str = final_message.split("\n")[0].replace("Date: ", "").strip()
     added_time = datetime.strptime(added_time_str, '%d %b %Y at %H:%M:%S %Z')
 
