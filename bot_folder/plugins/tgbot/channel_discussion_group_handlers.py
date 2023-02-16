@@ -33,15 +33,15 @@ async def is_admin(message):
 
     if message.sender_chat:
         # a user can send message as a group or channel, this can be an edge case in admin commands
-        return False
+        # this method is called after verifying message object is a comment in a post of a Broker channel
+        # so if sender chat id is same as chat id of discussion group it should be an admin
+        return message.sender_chat.id == message.chat.id
+
+    return None
 
 
 @Client.on_message(filters.group & filters.reply & filters.command("close", prefixes="!"))
 async def close_discussion_by_announcement_message(client, message):
-    if await is_admin(message) is False:
-        # this message is not from an admin
-        return None
-
     top_message = await get_top_message_object(client, message)
     if top_message.forward_from_chat is None:
         # top of discussion is not forwarded from a channel
@@ -52,6 +52,11 @@ async def close_discussion_by_announcement_message(client, message):
     ).aexists()
 
     if is_forwarded_from_broker_channel is False:
+        return None
+
+    # only call this method after verifying this message is a comment of a post in a Broker channel
+    if await is_admin(message) is False:
+        # this message is not from an admin
         return None
 
     # remove admin command text from message text
