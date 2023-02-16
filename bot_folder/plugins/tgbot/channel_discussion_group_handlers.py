@@ -3,6 +3,8 @@ import asyncio
 from pyrogram import Client, filters
 from db.models import BrokerChannel, BotAdmins
 
+from shared_config import shared_object
+
 
 async def get_top_message_object(client, message):
     """
@@ -25,7 +27,10 @@ async def get_top_message_object(client, message):
 
 async def is_admin(message):
     if message.from_user:
-        return await BotAdmins.objects.filter(user_id=message.from_user.id).aexists()
+        # return await BotAdmins.objects.filter(user_id=message.from_user.id).aexists()
+        user_id = message.from_user.id
+        return user_id in shared_object.clients["bot_admins"]
+
     if message.sender_chat:
         # a user can send message as a group or channel, this can be an edge case in admin commands
         return False
