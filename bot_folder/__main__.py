@@ -46,6 +46,13 @@ async def main():
             f"@{bot_details.username} started",
         )
 
+        admin_object = await bot.get_users(
+            shared_object.clients["super_admin"],
+        )
+
+    shared_object.clients["super_admin"] = admin_object.id
+    shared_object.clients["bot_admins"].append(admin_object.id)
+
     apps = [bot]
     await compose(apps)
 

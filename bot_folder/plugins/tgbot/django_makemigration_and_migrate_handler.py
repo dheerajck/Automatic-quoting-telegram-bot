@@ -6,10 +6,7 @@ from pyrogram import Client, filters
 from shared_config import shared_object
 
 
-SUPER_ADMIN = shared_object.clients["super_admin"]
-
-
-@Client.on_message(filters.user(SUPER_ADMIN) & filters.command("makemigration", prefixes="!"))
+@Client.on_message(filters.user(shared_object.clients["super_admin"]) & filters.command("makemigration", prefixes="!"))
 async def makemigration_handler(client, message):
     p = subprocess.Popen(
         ['python', 'manage.py', 'makemigrations', 'db'],
@@ -30,7 +27,7 @@ async def makemigration_handler(client, message):
     message.stop_propagation()
 
 
-@Client.on_message(filters.user(SUPER_ADMIN) & filters.command("migrate", prefixes="!"))
+@Client.on_message(filters.user(shared_object.clients["super_admin"]) & filters.command("migrate", prefixes="!"))
 async def migrate_handler(client, message):
     p = subprocess.Popen(
         ['python', 'manage.py', 'migrate'],

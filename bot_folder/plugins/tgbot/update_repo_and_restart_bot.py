@@ -7,10 +7,7 @@ from pyrogram import Client, filters
 from shared_config import shared_object
 
 
-SUPER_ADMIN = shared_object.clients["super_admin"]
-
-
-@Client.on_message(filters.user(SUPER_ADMIN) & filters.command("restart_bot", prefixes="!"))
+@Client.on_message(filters.user(shared_object.clients["super_admin"]) & filters.command("restart_bot", prefixes="!"))
 async def restart(client, message):
     # sys.executable
     # A string giving the absolute path of the executable binary for the Python interpreter like venv/bin/python3.11
@@ -19,7 +16,7 @@ async def restart(client, message):
     execvp(sys.executable, [sys.executable, "-m", "bot_folder"])
 
 
-@Client.on_message(filters.user(SUPER_ADMIN) & filters.command("update_repo", prefixes="!"))
+@Client.on_message(filters.user(shared_object.clients["super_admin"]) & filters.command("update_repo", prefixes="!"))
 async def update_repo(client, message):
     try:
         out = subprocess.check_output(["git", "pull"]).decode("UTF-8")

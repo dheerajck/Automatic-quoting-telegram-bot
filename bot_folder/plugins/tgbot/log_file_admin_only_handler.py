@@ -2,10 +2,7 @@ from pyrogram import Client, filters
 from shared_config import shared_object
 
 
-SUPER_ADMIN = shared_object.clients["super_admin"]
-
-
-@Client.on_message(filters.user(SUPER_ADMIN) & filters.command("logfile", prefixes="!"))
+@Client.on_message(filters.user(shared_object.clients["super_admin"]) & filters.command("logfile", prefixes="!"))
 async def logfile(client, message):
     """
     Returns the logfile

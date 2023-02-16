@@ -8,19 +8,14 @@ from shared_config import shared_object
 from bot_folder.helpers import send_invalid_peer_or_username_error_method
 
 
-SUPER_ADMIN = shared_object.clients["super_admin"]
-
-BOT_ADMIN = shared_object.clients["bot_admins"]
-
-ADMINS = [SUPER_ADMIN] + BOT_ADMIN
-
-
 """
 ADMIN CHANNEL
 """
 
 
-@Client.on_message(filters.user(ADMINS) & filters.command("add_admin_channel", prefixes="!"))
+@Client.on_message(
+    filters.user(shared_object.clients["bot_admins"]) & filters.command("add_admin_channel", prefixes="!")
+)
 async def add_admin_handler(client, message):
     if len(message.command) == 1:
         chat_object = message.chat
@@ -37,14 +32,16 @@ async def add_admin_handler(client, message):
             await AdminChannel.objects.acreate(group_id=chat_object.id, title=chat_object.title)
             await message.reply(f"Added {chat_object.title} to admin groups")
         except IntegrityError:
-            pass
+            await message.reply(f"Added {chat_object.title} to admin groups")
 
     else:
         await message.reply("You cant add users to Admin channel")
     message.stop_propagation()
 
 
-@Client.on_message(filters.user(ADMINS) & filters.command("remove_admin_channel", prefixes="!"))
+@Client.on_message(
+    filters.user(shared_object.clients["bot_admins"]) & filters.command("remove_admin_channel", prefixes="!")
+)
 async def remove_admin_handler(client, message):
     if len(message.command) == 1:
         chat_object = message.chat
@@ -61,7 +58,9 @@ async def remove_admin_handler(client, message):
     message.stop_propagation()
 
 
-@Client.on_message(filters.user(ADMINS) & filters.command("list_admin_channel", prefixes="!"))
+@Client.on_message(
+    filters.user(shared_object.clients["bot_admins"]) & filters.command("list_admin_channel", prefixes="!")
+)
 async def list_admin_handler(client, message):
     output = ""
     async for channel in AdminChannel.objects.all():
@@ -78,7 +77,9 @@ BROKER CHANNEL
 """
 
 
-@Client.on_message(filters.user(ADMINS) & filters.command("add_broker_channel", prefixes="!"))
+@Client.on_message(
+    filters.user(shared_object.clients["bot_admins"]) & filters.command("add_broker_channel", prefixes="!")
+)
 async def add_broker_handler(client, message):
     if len(message.command) == 1:
         chat_object = message.chat
@@ -95,14 +96,16 @@ async def add_broker_handler(client, message):
             await BrokerChannel.objects.acreate(group_id=chat_object.id, title=chat_object.title)
             await message.reply(f"Added {chat_object.title} to broker groups")
         except IntegrityError:
-            pass
+            await message.reply(f"Added {chat_object.title} to broker groups")
 
     else:
         await message.reply("You cant add users to Broker channel")
     message.stop_propagation()
 
 
-@Client.on_message(filters.user(ADMINS) & filters.command("remove_broker_channel", prefixes="!"))
+@Client.on_message(
+    filters.user(shared_object.clients["bot_admins"]) & filters.command("remove_broker_channel", prefixes="!")
+)
 async def remove_broker_handler(client, message):
     if len(message.command) == 1:
         chat_object = message.chat
@@ -118,7 +121,9 @@ async def remove_broker_handler(client, message):
     message.stop_propagation()
 
 
-@Client.on_message(filters.user(ADMINS) & filters.command("list_broker_channel", prefixes="!"))
+@Client.on_message(
+    filters.user(shared_object.clients["bot_admins"]) & filters.command("list_broker_channel", prefixes="!")
+)
 async def list_broker_handler(client, message):
     output = ""
     async for channel in BrokerChannel.objects.all():

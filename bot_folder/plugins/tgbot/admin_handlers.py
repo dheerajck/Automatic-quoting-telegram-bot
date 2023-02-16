@@ -7,10 +7,7 @@ from shared_config import shared_object
 from bot_folder.helpers import send_invalid_peer_or_username_error_method
 
 
-SUPER_ADMIN = shared_object.clients["super_admin"]
-
-
-@Client.on_message(filters.user(SUPER_ADMIN) & filters.command("add_bot_admin", prefixes="!"))
+@Client.on_message(filters.user(shared_object.clients["super_admin"]) & filters.command("add_bot_admin", prefixes="!"))
 async def add_bot_admin(client, message):
     message_text = message.text
 
@@ -36,7 +33,9 @@ async def add_bot_admin(client, message):
         message.stop_propagation()
 
 
-@Client.on_message(filters.user(SUPER_ADMIN) & filters.command("remove_bot_admin", prefixes="!"))
+@Client.on_message(
+    filters.user(shared_object.clients["super_admin"]) & filters.command("remove_bot_admin", prefixes="!")
+)
 async def remove_bot_admin(client, message):
     message_text = message.text
     try:
@@ -57,7 +56,7 @@ async def remove_bot_admin(client, message):
         message.stop_propagation()
 
 
-@Client.on_message(filters.user(SUPER_ADMIN) & filters.command("list_bot_admin", prefixes="!"))
+@Client.on_message(filters.user(shared_object.clients["super_admin"]) & filters.command("list_bot_admin", prefixes="!"))
 async def list_bot_admin(client, message):
     output = "List of admins\n"
     async for admin in BotAdmins.objects.all():

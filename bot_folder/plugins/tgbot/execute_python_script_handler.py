@@ -6,9 +6,6 @@ from pyrogram import Client, filters
 from shared_config import shared_object
 
 
-SUPER_ADMIN = shared_object.clients["super_admin"]
-
-
 def execute_python_code_function(code):
     p = subprocess.Popen(['python', 'manage.py', 'shell', '-c', code], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output, error = p.communicate()
@@ -22,7 +19,7 @@ def execute_python_code_function(code):
     return temp_file
 
 
-@Client.on_message(filters.user(SUPER_ADMIN) & filters.command("list_models", prefixes="!"))
+@Client.on_message(filters.user(shared_object.clients["super_admin"]) & filters.command("list_models", prefixes="!"))
 async def models(client, message):
     message_text: str = message.text.replace("!orm", "", 1).strip()
     if message_text == "":
@@ -53,7 +50,7 @@ list_models()
     message.stop_propagation()
 
 
-@Client.on_message(filters.user(SUPER_ADMIN) & filters.command("orm", prefixes="!"))
+@Client.on_message(filters.user(shared_object.clients["super_admin"]) & filters.command("orm", prefixes="!"))
 async def orm(client, message):
     message_text: str = message.text.replace("!orm", "", 1).strip()
 
