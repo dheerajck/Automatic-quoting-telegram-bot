@@ -4,12 +4,13 @@ import os
 import uvloop
 from dotenv import load_dotenv
 
-from pyrogram import Client, compose
+from pyrogram import Client, compose, filters
 
 from simple_logging.standard_logging_loguru_interface_class import set_logger
 
 from shared_config import shared_object
 from db.models import BotAdmins
+
 
 # load env
 load_dotenv("bot_folder/.env")
@@ -35,9 +36,9 @@ async def main():
 
     shared_object.clients["tgbot"] = bot
 
-    shared_object.clients["bot_admins"] = [
+    shared_object.clients["bot_admins"] = filters.user(
         user_id async for user_id in BotAdmins.objects.all().values_list("user_id", flat=True)
-    ]
+    )
 
     async with bot:
         bot_details = await bot.get_me()
@@ -51,7 +52,7 @@ async def main():
         )
 
     shared_object.clients["super_admin"] = admin_object.id
-    shared_object.clients["bot_admins"].append(admin_object.id)
+    shared_object.clients["bot_admins"].add(admin_object.id)
 
     apps = [bot]
     await compose(apps)

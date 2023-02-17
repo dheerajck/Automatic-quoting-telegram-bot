@@ -26,9 +26,8 @@ async def add_bot_admin(client, message):
         except IntegrityError:
             pass
 
-        shared_object.clients["bot_admins"] = [
-            user_id async for user_id in BotAdmins.objects.all().values_list("user_id", flat=True)
-        ]
+        shared_object.clients["bot_admins"].add(user_object.id)
+
         await message.reply(f"Added {name} as bot admin")
         message.stop_propagation()
 
@@ -49,9 +48,9 @@ async def remove_bot_admin(client, message):
     else:
         name = user_object.first_name + (user_object.last_name or "")
         await BotAdmins.objects.filter(user_id=user_object.id).adelete()
-        shared_object.clients["bot_admins"] = [
-            user_id async for user_id in BotAdmins.objects.all().values_list("user_id", flat=True)
-        ]
+
+        shared_object.clients["bot_admins"].remove(user_object.id)
+
         await message.reply(f"Removed {name} from bot admin")
         message.stop_propagation()
 
