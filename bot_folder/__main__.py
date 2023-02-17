@@ -23,11 +23,15 @@ uvloop.install()
 
 
 async def main():
+    # Get API credentials and bot token from environment variables
     api_id = os.getenv('API_ID')
     api_hash = os.getenv('API_HASH')
     bot_token = os.getenv('BOT_TOKEN')
+
+    # Get super admin from environment variables
     shared_object.clients["super_admin"] = os.getenv('SUPER_ADMIN')
 
+    # Set plugins for the bot
     plugins_tgbot = dict(
         root="bot_folder.plugins.tgbot/",
     )
@@ -41,12 +45,14 @@ async def main():
     )
 
     async with bot:
+        # Send message to the super admin user when the bot starts with the bots username
         bot_details = await bot.get_me()
         await bot.send_message(
             shared_object.clients["super_admin"],
             f"@{bot_details.username} started",
         )
 
+        # user id of super admin
         admin_object = await bot.get_users(
             shared_object.clients["super_admin"],
         )
@@ -54,6 +60,7 @@ async def main():
     shared_object.clients["super_admin"] = admin_object.id
     shared_object.clients["bot_admins"].add(admin_object.id)
 
+    # Run the bot
     apps = [bot]
     await compose(apps)
 
