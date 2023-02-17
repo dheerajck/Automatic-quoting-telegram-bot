@@ -1,12 +1,16 @@
 import logging
+import asyncio
 
 from datetime import datetime, timezone
 import xxhash
 
+from shared_config import shared_object
+
+
 from pyrogram import Client, filters
 from pyrogram.errors import BadRequest, Forbidden
 
-from db.models import AdminChannel, BrokerChannel
+from db.models import AdminChannel, BrokerChannel, Conversations
 
 from db.models import (
     Conversations,
@@ -80,8 +84,8 @@ async def user_submit(client, callback_query):
 
 @Client.on_callback_query(filters.regex(r"SEND"))
 async def admin_choice(client, callback_query):
-    await callback_query.answer(cache_time=100)
-    await callback_query.message.edit_text(callback_query.message.text, reply_markup=None)
+    # await callback_query.answer(cache_time=100)
+    # await callback_query.message.edit_text(callback_query.message.text, reply_markup=None)
 
     final_message = callback_query.message.text
     quote_id = final_message.split("\n")[0].replace("Quote ID: ", "").strip()
@@ -98,14 +102,63 @@ async def admin_choice(client, callback_query):
     final_data = "\n".join(question_answer).strip()
     final_data = f"Quote ID: {quote_id}\n" + final_data
 
-    async for group in BrokerChannel.objects.all():
-        try:
-            temp_message = await client.send_message(group.group_id, final_data)
-            response = f"Quote sent to broker channel ([link of message in broker channel]({temp_message.link}))"
-            # print(temp_message)
-            await client.send_message(callback_query.message.chat.id, response)
-        except BadRequest as e:
-            logging.exception(e)
+    admin_broker_channel = await BrokerChannel.objects.filter(is_user=False).afirst()
+
+    try:
+        temp_message = await client.send_message(admin_broker_channel.group_id, final_data)
+
+        response = f"Quote sent to broker channel ([link of message in broker channel]({temp_message.link}))"
+        await client.send_message(callback_query.message.chat.id, response)
+
+        async for broker_user in BrokerChannel.objects.filter(is_user=True):
+            try:
+                temp_channel_message_object = await client.send_message(broker_user.group_id, final_data)
+                question = f"{temp_channel_message_object.chat.id}-{temp_channel_message_object.id}"
+
+                # await Conversations.objects.filter(user_id=broker_user.group_id, question=question).adelete()
+                # await Conversations.objects.acreate(
+                #     user_id=broker_user.group_id,
+                #     question=question,
+                #     conversation_type="bot message",
+                # )
+
+                await Conversations.objects.aget_or_create(
+                    user_id=broker_user.group_id,
+                    question=question,
+                    conversation_type="bot message",
+                )
+
+            except Exception as e:
+                continue
+
+    except BadRequest as e:
+        logging.exception(e)
+
+
+@Client.on_message(filters.private, group=1)
+async def response_to_bots_test(client, message):
+    if not message.text:
+        return None
+
+    user_id = message.from_user.id
+    response = message.text.strip()
+
+    question_answered_to_object = await Conversations.objects.filter(
+        user_id=user_id, response="", conversation_type="bot message"
+    ).afirst()
+
+    if not question_answered_to_object:
+        # this user doesnt have a question that needs answer
+        message.continue_propagation()
+        return None
+
+    channel_id, message_id = question_answered_to_object.question.split("-")
+
+    await Conversations.objects.filter(id=question_answered_to_object.id).adelete()
+
+    channel_id = int(channel_id)
+    message_id = int(message_id)
+    print(response)
 
 
 @Client.on_callback_query(filters.regex("CANCEL"))

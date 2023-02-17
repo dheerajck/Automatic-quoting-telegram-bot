@@ -13,14 +13,16 @@ class Questions(models.Model):
 
 class Conversations(models.Model):
     user_id = models.BigIntegerField()
-    question_order = models.IntegerField()
+    question_order = models.IntegerField(null=True)
     question = models.CharField(max_length=50)
-    response = models.CharField(max_length=50)
+    response = models.CharField(max_length=50, default="")
 
     regex_pattern = models.CharField(max_length=50, default='')
     invalid_response = models.CharField(max_length=50, default='')
 
-    private_question = models.BooleanField()
+    private_question = models.BooleanField(default=False)
+
+    conversation_type = models.CharField(max_length=50, default="questionaire")
 
 
 class AdminChannel(models.Model):
@@ -31,6 +33,7 @@ class AdminChannel(models.Model):
 class BrokerChannel(models.Model):
     group_id = models.BigIntegerField(unique=True)
     title = models.CharField(max_length=50)
+    is_user = models.BooleanField(default=False)
 
 
 class ConversationIdentifier(models.Model):

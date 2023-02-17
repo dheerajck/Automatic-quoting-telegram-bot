@@ -114,7 +114,7 @@ async def remove_broker_handler(client, message):
 @Client.on_message(shared_object.clients["bot_admins"] & filters.command("list_broker_channel", prefixes="!"))
 async def list_broker_handler(client, message):
     output = ""
-    async for channel in BrokerChannel.objects.all():
+    async for channel in BrokerChannel.objects.filter(is_user=False):
         output += f"{channel.title } `{channel.group_id}`\n"
     if output != "":
         await message.reply(output, quote=False)

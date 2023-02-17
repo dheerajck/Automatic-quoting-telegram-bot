@@ -67,13 +67,16 @@ async def questionaire(client, message):
     response = message.text.strip()
     # question that was asked before, if there was a question left to ask
     question_answered_to_object = (
-        await Conversations.objects.filter(user_id=user_id, response="").order_by("question_order").afirst()
+        await Conversations.objects.filter(user_id=user_id, response="", conversation_type="questionaire")
+        .order_by("question_order")
+        .afirst()
     )
 
     if not question_answered_to_object:
         # this user doesnt have a question that needs answer
-        await message.reply("Send /newquote for new quote request")
-        return None
+        message.continue_propagation()
+        # await message.reply("Send /newquote for new quote request")
+        # return None
 
     # print(question_answered_to_object.question, question_answered_to_object.regex_pattern)
 
@@ -87,7 +90,9 @@ async def questionaire(client, message):
 
     # next question to ask if there is a question to  left to ask
     next_question_object = (
-        await Conversations.objects.filter(user_id=user_id, response="").order_by("question_order").afirst()
+        await Conversations.objects.filter(user_id=user_id, response="", conversation_type="questionaire")
+        .order_by("question_order")
+        .afirst()
     )
 
     if next_question_object:
@@ -101,7 +106,9 @@ async def questionaire(client, message):
 
         question_answer = []
 
-        async for conversation_data in Conversations.objects.filter(user_id=user_id).order_by("question_order"):
+        async for conversation_data in Conversations.objects.filter(
+            user_id=user_id, conversation_type="questionaire"
+        ).order_by("question_order"):
             question_answer.append(f"{conversation_data.question}\n{conversation_data.response}\n")
 
         user_id = message.from_user.id
