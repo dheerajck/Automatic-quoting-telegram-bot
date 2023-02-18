@@ -20,7 +20,7 @@ async def get_user_details(client, message):
         return user_object
 
 
-@Client.on_message(filters.user(shared_object.clients["super_admin"]) & filters.command("add_bot_admin", prefixes="!"))
+@Client.on_message(shared_object.clients["bot_admins"] & filters.command("add_bot_admin", prefixes="!"))
 async def add_bot_admin(client, message):
     """
     This is a message handler to add new bot admin.
@@ -44,9 +44,7 @@ async def add_bot_admin(client, message):
     message.stop_propagation()
 
 
-@Client.on_message(
-    filters.user(shared_object.clients["super_admin"]) & filters.command("remove_bot_admin", prefixes="!")
-)
+@Client.on_message(shared_object.clients["bot_admins"] & filters.command("remove_bot_admin", prefixes="!"))
 async def remove_bot_admin(client, message):
     """
     This is a message handler to remove a user from bot admin list.
@@ -65,7 +63,7 @@ async def remove_bot_admin(client, message):
     message.stop_propagation()
 
 
-@Client.on_message(filters.user(shared_object.clients["super_admin"]) & filters.command("list_bot_admin", prefixes="!"))
+@Client.on_message(shared_object.clients["bot_admins"] & filters.command("list_bot_admin", prefixes="!"))
 async def list_bot_admin(client, message):
     """
     This is a message handler to list all bot admins.

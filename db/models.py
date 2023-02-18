@@ -41,6 +41,9 @@ class ConversationIdentifier(models.Model):
     added = models.DateTimeField()
     quote_id = models.CharField(max_length=50)
 
+    discussion_group_id = models.BigIntegerField(null=True)
+    message_id = models.BigIntegerField(null=True)
+
 
 class ConversationBackups(models.Model):
     conversation_identifier = models.ForeignKey(ConversationIdentifier, on_delete=models.CASCADE)

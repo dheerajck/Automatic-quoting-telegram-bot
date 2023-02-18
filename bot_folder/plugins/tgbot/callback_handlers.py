@@ -190,10 +190,10 @@ async def admin_choice_callback_handler(client, callback_query):
         # Send the quote to all the broker users
         async for broker_user in BrokerChannel.objects.filter(is_user=True):
             try:
-                temp_channel_message_object = await client.send_message(broker_user.group_id, final_data)
+                await client.send_message(broker_user.group_id, final_data)
 
                 # Custom question
-                question = f"{temp_channel_message_object.chat.id}-{temp_channel_message_object.id}"
+                question = quote_id
 
                 # await Conversations.objects.filter(user_id=broker_user.group_id, question=question).adelete()
                 # await Conversations.objects.acreate(
@@ -231,8 +231,7 @@ async def response_from_brokers_test(client, message):
         message.continue_propagation()
 
     user_id = message.from_user.id
-    # users response
-    response = message.text.strip()
+    name = message.from_user.first_name + (message.from_user.last_name or "")
 
     # Checks if there is a question that bot is expecting answers from this user <message.from_chat.id>
     question_answered_to_object = await Conversations.objects.filter(
@@ -241,15 +240,50 @@ async def response_from_brokers_test(client, message):
 
     if not question_answered_to_object:
         # This user doesnt have a question that needs answer
+        await message.reply("Send /newquote for new quote request")
         message.continue_propagation()
         return None
 
-    # Get channel and message ids from the question string(Custom question)
+    # Get quote id from the question string(Custom question)
     # and then delete this question from the Conversations table
-    channel_id, message_id = question_answered_to_object.question.split("-")
+
+    question = quote_id = question_answered_to_object.question.strip()
+    response = message.text.strip()
+
     await Conversations.objects.filter(id=question_answered_to_object.id).adelete()
 
-    channel_id = int(channel_id)
-    message_id = int(message_id)
-    # Print the user response
-    print(response)
+    quote_conversation = await ConversationIdentifier.objects.filter(quote_id=quote_id).afirst()
+    discussion_group_id = quote_conversation.discussion_group_id
+    message_id = quote_conversation.message_id
+
+    response = f"{name} replied\n{response}"
+    try:
+        await client.send_message(chat_id=discussion_group_id, reply_to_message_id=message_id, text=response)
+    except Exception as e:
+        pass
+
+    await message.reply("Thanks for your response")
+
+    message.continue_propagation()
+
+
+@Client.on_message(filters.group)
+async def discussion_group(client, message):
+    """
+    This message handler handles message from discussion group of first broker channel
+    """
+
+    if message.sender_chat:
+        fist_broker_channel_object = await BrokerChannel.objects.filter(
+            group_id=message.sender_chat.id, is_user=False
+        ).afirst()
+
+        if fist_broker_channel_object.group_id == message.sender_chat.id:
+            discussion_group_id = message.chat.id
+            message_id = message.id
+            final_message = message.text.strip()
+            quote_id = final_message.split("\n")[0].strip()
+            quote_id = quote_id.replace("Quote ID:", "").strip()
+            await ConversationIdentifier.objects.filter(quote_id=quote_id).aupdate(
+                discussion_group_id=discussion_group_id, message_id=message_id
+            )

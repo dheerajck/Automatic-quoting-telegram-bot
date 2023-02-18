@@ -108,8 +108,8 @@ async def questionaire(client, message):
 
     if not question_answered_to_object:
         # This user doesn't have a question that needs answering
-        message.continue_propagation()
         # await message.reply("Send /newquote for new quote request")
+        message.continue_propagation()
         # return None
 
     # print(question_answered_to_object.question, question_answered_to_object.regex_pattern)

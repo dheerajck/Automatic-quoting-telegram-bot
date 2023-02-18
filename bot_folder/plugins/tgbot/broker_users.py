@@ -52,7 +52,7 @@ async def remove_broker_user_handler(client, message):
     if user_object.type == enums.ChatType.PRIVATE:
         full_name = user_object.first_name + (user_object.last_name or "")
         await BrokerChannel.objects.filter(group_id=user_object.id).adelete()
-        await message.reply(f"Removed {full_name} to broker groups")
+        await message.reply(f"Removed {full_name} from broker groups if he was a broker user")
     else:
         await message.reply("Specify user not group / channel")
     message.stop_propagation()
