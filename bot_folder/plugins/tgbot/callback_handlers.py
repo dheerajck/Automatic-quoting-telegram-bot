@@ -287,3 +287,5 @@ async def discussion_group(client, message):
             await ConversationIdentifier.objects.filter(quote_id=quote_id).aupdate(
                 discussion_group_id=discussion_group_id, message_id=message_id
             )
+
+    message.continue_propagation()

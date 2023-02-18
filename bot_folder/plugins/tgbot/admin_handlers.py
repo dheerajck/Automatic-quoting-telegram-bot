@@ -57,7 +57,7 @@ async def remove_bot_admin(client, message):
     if user_object:
         name = user_object.first_name + (user_object.last_name or "")
         await BotAdmins.objects.filter(user_id=user_object.id).adelete()
-        shared_object.clients["bot_admins"].remove(user_object.id)
+        shared_object.clients["bot_admins"].discard(user_object.id)
         await message.reply(f"Removed {name} from bot admin if they were bot admin")
 
     message.stop_propagation()
