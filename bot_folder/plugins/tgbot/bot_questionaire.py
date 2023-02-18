@@ -119,8 +119,7 @@ async def questionaire(client, message):
         # If users response isnt matching expected pattern, let the user know about that and ask to answer again
         if not await does_input_string_match_pattern(response, question_answered_to_object.regex_pattern):
             await message.reply(question_answered_to_object.invalid_response)
-            message.continue_propagation()
-            # return None
+            return None
 
     # Update the user's response in the Conversations table
     await Conversations.objects.filter(id=question_answered_to_object.id).aupdate(response=response)

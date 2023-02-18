@@ -262,7 +262,7 @@ async def response_from_brokers_test(client, message):
     except Exception as e:
         pass
 
-    await message.reply("Thanks for your response")
+    await message.reply("Thank you for your response")
 
     message.continue_propagation()
 

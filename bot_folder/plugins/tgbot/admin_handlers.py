@@ -54,10 +54,15 @@ async def remove_bot_admin(client, message):
 
     user_object = await get_user_details(client, message)
 
-    if user_object:
+    if user_object.id == shared_object.clients["super_admin"]:
+        # dont remove super admin from bot admin
+        pass
+
+    elif user_object:
         name = user_object.first_name + (user_object.last_name or "")
         await BotAdmins.objects.filter(user_id=user_object.id).adelete()
         shared_object.clients["bot_admins"].discard(user_object.id)
+
         await message.reply(f"Removed {name} from bot admin if they were bot admin")
 
     message.stop_propagation()
@@ -73,7 +78,12 @@ async def list_bot_admin(client, message):
 
     output = "List of admins\n"
 
+    # Refreshes bot admin set in memory aswell
+    shared_object.clients["bot_admins"].clear()
+    shared_object.clients["bot_admins"].add(shared_object.clients["super_admin"])
+
     async for admin in BotAdmins.objects.all():
+        shared_object.clients["bot_admins"].add(admin.user_id)
         output += f"{admin.name } `{admin.user_id}`\n"
 
     output = output if output != "List of admins\n" else "No bot admins in the db"
