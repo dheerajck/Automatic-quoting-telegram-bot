@@ -4,10 +4,7 @@ from pyrogram import enums
 
 from db.models import AdminChannel, BrokerChannel
 
-
 from shared_config import shared_object
-
-from bot_folder.helpers import send_invalid_peer_or_username_error_method
 
 
 """
@@ -20,8 +17,8 @@ async def get_chat_details(client, message):
         # if there is username specified take it as chat id else take current chat id from message
         chat = message.command[1] if len(message.command) == 2 else message.chat.id
         chat_object = await client.get_chat(chat)
-    except Exception:
-        await send_invalid_peer_or_username_error_method(client, message, chat)
+    except Exception as e:
+        await message.reply(e)
         return None
 
     else:

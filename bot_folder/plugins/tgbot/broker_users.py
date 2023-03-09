@@ -5,12 +5,18 @@ from pyrogram import enums
 
 from shared_config import shared_object
 
-from bot_folder.helpers import send_invalid_peer_or_username_error_method
 
-
-"""
-BROKER USER
-"""
+async def get_user_details(client, message):
+    try:
+        user = message.command[1] if len(message.command) == 2 else ""
+        user_object = await client.get_users(user)
+    except Exception as e:
+        # If bot cant find user from the information provided <username or user ID>,
+        # send a clear error message why bot cant find the user
+        await message.reply(e)
+        return None
+    else:
+        return user_object
 
 
 @Client.on_message(shared_object.clients["bot_admins"] & filters.command("adduser", prefixes="!"))
@@ -23,7 +29,7 @@ async def add_broker_user_handler(client, message):
         user = message.command[1]
         user_object = await client.get_chat(user)
     except Exception as e:
-        await send_invalid_peer_or_username_error_method(client, message, user)
+        await message.reply(e)
         message.stop_propagation()
 
     if user_object.type == enums.ChatType.PRIVATE:
@@ -46,7 +52,7 @@ async def remove_broker_user_handler(client, message):
     try:
         user_object = await client.get_chat(user)
     except Exception as e:
-        await send_invalid_peer_or_username_error_method(client, message, user)
+        await message.reply(e)
         message.stop_propagation()
 
     if user_object.type == enums.ChatType.PRIVATE:
