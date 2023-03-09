@@ -32,7 +32,7 @@ async def get_chat_details(client, message):
             return chat_object
 
 
-@Client.on_message(shared_object.clients["bot_admins"] & filters.command("add_admin_channel", prefixes="!"))
+@Client.on_message(shared_object.clients["bot_admins"] & filters.command("addadminchannel", prefixes="!"))
 async def add_admin_handler(client, message):
     """
     This is a message handler to add a new admin channel.
@@ -52,7 +52,7 @@ async def add_admin_handler(client, message):
     message.stop_propagation()
 
 
-@Client.on_message(shared_object.clients["bot_admins"] & filters.command("remove_admin_channel", prefixes="!"))
+@Client.on_message(shared_object.clients["bot_admins"] & filters.command("removeadminchannel", prefixes="!"))
 async def remove_admin_handler(client, message):
     """
     This is a message handler to remove an admin channel.
@@ -69,7 +69,7 @@ async def remove_admin_handler(client, message):
     message.stop_propagation()
 
 
-@Client.on_message(shared_object.clients["bot_admins"] & filters.command("list_admin_channel", prefixes="!"))
+@Client.on_message(shared_object.clients["bot_admins"] & filters.command("listadminchannel", prefixes="!"))
 async def list_admin_handler(client, message):
     """
     This is a message handler to list all admin channels.
@@ -93,7 +93,7 @@ BROKER CHANNEL
 """
 
 
-@Client.on_message(shared_object.clients["bot_admins"] & filters.command("add_broker_channel", prefixes="!"))
+@Client.on_message(shared_object.clients["bot_admins"] & filters.command("addbrokerchannel", prefixes="!"))
 async def add_broker_handler(client, message):
     """
     This is a message handler to add a new broker channel.
@@ -113,7 +113,7 @@ async def add_broker_handler(client, message):
     message.stop_propagation()
 
 
-@Client.on_message(shared_object.clients["bot_admins"] & filters.command("remove_broker_channel", prefixes="!"))
+@Client.on_message(shared_object.clients["bot_admins"] & filters.command("removebrokerchannel", prefixes="!"))
 async def remove_broker_handler(client, message):
     """
     This is a message handler to remove an broker channel.
@@ -130,7 +130,7 @@ async def remove_broker_handler(client, message):
     message.stop_propagation()
 
 
-@Client.on_message(shared_object.clients["bot_admins"] & filters.command("list_broker_channel", prefixes="!"))
+@Client.on_message(shared_object.clients["bot_admins"] & filters.command("listbrokerchannel", prefixes="!"))
 async def list_broker_handler(client, message):
     """
     This is a message handler to list all broker channels.

@@ -13,7 +13,7 @@ BROKER USER
 """
 
 
-@Client.on_message(shared_object.clients["bot_admins"] & filters.command("add_broker_user", prefixes="!"))
+@Client.on_message(shared_object.clients["bot_admins"] & filters.command("adduser", prefixes="!"))
 async def add_broker_user_handler(client, message):
     if len(message.command) != 2:
         await message.reply("Specify user")
@@ -40,7 +40,7 @@ async def add_broker_user_handler(client, message):
     message.stop_propagation()
 
 
-@Client.on_message(shared_object.clients["bot_admins"] & filters.command("remove_broker_user", prefixes="!"))
+@Client.on_message(shared_object.clients["bot_admins"] & filters.command("removeuser", prefixes="!"))
 async def remove_broker_user_handler(client, message):
     user = message.command[1]
     try:
@@ -58,7 +58,7 @@ async def remove_broker_user_handler(client, message):
     message.stop_propagation()
 
 
-@Client.on_message(shared_object.clients["bot_admins"] & filters.command("list_broker_user", prefixes="!"))
+@Client.on_message(shared_object.clients["bot_admins"] & filters.command("listuser", prefixes="!"))
 async def list_broker_user_handler(client, message):
     output = ""
     async for channel in BrokerChannel.objects.filter(is_user=True):
