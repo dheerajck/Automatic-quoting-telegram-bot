@@ -54,21 +54,22 @@ async def remove_bot_admin(client, message):
 
     user_object = await get_user_details(client, message)
 
-    if user_object.id == shared_object.clients["super_admin"]:
-        # dont remove super admin from bot admin
-        pass
+    if user_object:
+        if user_object.id == shared_object.clients["super_admin"]:
+            # dont remove super admin from bot admin
+            pass
 
-    elif user_object:
-        name = user_object.first_name + (user_object.last_name or "")
-        await BotAdmins.objects.filter(user_id=user_object.id).adelete()
-        shared_object.clients["bot_admins"].discard(user_object.id)
+        else:
+            name = user_object.first_name + (user_object.last_name or "")
+            await BotAdmins.objects.filter(user_id=user_object.id).adelete()
+            shared_object.clients["bot_admins"].discard(user_object.id)
 
-        await message.reply(f"Removed {name} from bot admin if they were bot admin")
+            await message.reply(f"Removed {name} from bot admin if they were bot admin")
 
     message.stop_propagation()
 
 
-@Client.on_message(shared_object.clients["bot_admins"] & filters.command("list_bot_admin", prefixes="!"))
+@Client.on_message(shared_object.clients["bot_admins"] & filters.command("listadmin", prefixes="!"))
 async def list_bot_admin(client, message):
     """
     This is a message handler to list all bot admins.
