@@ -236,7 +236,7 @@ async def response_from_brokers_test(client, message):
     # Checks if there is a question that bot is expecting answers from this user <message.from_chat.id>
     question_answered_to_object = await Conversations.objects.filter(
         user_id=user_id, response="", conversation_type="bot message"
-    ).afirst()
+    ).alatest("id")
 
     if not question_answered_to_object:
         # This user doesnt have a question that needs answer
