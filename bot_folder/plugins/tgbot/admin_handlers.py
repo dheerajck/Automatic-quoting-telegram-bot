@@ -4,18 +4,7 @@ from db.models import BotAdmins
 
 from shared_config import shared_object
 
-
-async def get_user_details(client, message):
-    try:
-        user = message.command[1] if len(message.command) == 2 else ""
-        user_object = await client.get_users(user)
-    except Exception as e:
-        # If bot cant find user from the information provided <username or user ID>,
-        # send a clear error message why bot cant find the user
-        await message.reply(e)
-        return None
-    else:
-        return user_object
+from bot_folder.helpers import get_user_details
 
 
 @Client.on_message(shared_object.clients["bot_admins"] & filters.command("addadmin", prefixes="!"))
@@ -27,6 +16,10 @@ async def add_bot_admin(client, message):
     """
 
     user_object = await get_user_details(client, message)
+
+    if user_object:
+        if user_object.id == shared_object.clients["super_admin"]:
+            pass
 
     if user_object:
         # If the <username or user ID> is valid, add that user as a bot admin
@@ -61,7 +54,6 @@ async def remove_bot_admin(client, message):
             name = user_object.first_name + (user_object.last_name or "")
             await BotAdmins.objects.filter(user_id=user_object.id).adelete()
             shared_object.clients["bot_admins"].discard(user_object.id)
-
             await message.reply(f"Removed {name} from bot admin if they were bot admin")
 
     message.stop_propagation()
@@ -75,7 +67,7 @@ async def list_bot_admin(client, message):
     The command syntax is: !list_bot_admin
     """
 
-    output = "List of admins\n"
+    output = "List of bot admins\n"
 
     # Refreshes bot admin set in memory aswell
     shared_object.clients["bot_admins"].clear()

@@ -1,32 +1,16 @@
 from django.db import IntegrityError
 from pyrogram import Client, filters
-from pyrogram import enums
 
 from db.models import AdminChannel, BrokerChannel
 
 from shared_config import shared_object
 
+from bot_folder.helpers import get_chat_details
+
 
 """
 ADMIN CHANNEL
 """
-
-
-async def get_chat_details(client, message):
-    try:
-        # if there is username specified take it as chat id else take current chat id from message
-        chat = message.command[1] if len(message.command) == 2 else message.chat.id
-        chat_object = await client.get_chat(chat)
-    except Exception as e:
-        await message.reply(e)
-        return None
-
-    else:
-        if chat_object.type == enums.ChatType.PRIVATE:
-            await message.reply("You cant add user as Admin or Broker channel")
-            return None
-        else:
-            return chat_object
 
 
 @Client.on_message(shared_object.clients["bot_admins"] & filters.command("addadminchannel", prefixes="!"))
