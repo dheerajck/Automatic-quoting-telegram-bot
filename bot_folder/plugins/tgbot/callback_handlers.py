@@ -234,9 +234,14 @@ async def response_from_brokers_test(client, message):
     name = message.from_user.first_name + (message.from_user.last_name or "")
 
     # Checks if there is a question that bot is expecting answers from this user <message.from_chat.id>
-    question_answered_to_object = await Conversations.objects.filter(
-        user_id=user_id, response="", conversation_type="bot message"
-    ).alatest("id")
+    try:
+        question_answered_to_object = await Conversations.objects.filter(
+            user_id=user_id, response="", conversation_type="bot message"
+        ).alatest("id")
+    except Conversations.DoesNotExist:
+        await message.reply("Send /newquote for new quote request")
+        message.continue_propagation()
+        return None
 
     if not question_answered_to_object:
         # This user doesnt have a question that needs answer
@@ -274,18 +279,19 @@ async def discussion_group(client, message):
     """
 
     if message.sender_chat:
-        fist_broker_channel_object = await BrokerChannel.objects.filter(
+        first_broker_channel_object = await BrokerChannel.objects.filter(
             group_id=message.sender_chat.id, is_user=False
         ).afirst()
 
-        if fist_broker_channel_object.group_id == message.sender_chat.id:
-            discussion_group_id = message.chat.id
-            message_id = message.id
-            final_message = message.text.strip()
-            quote_id = final_message.split("\n")[0].strip()
-            quote_id = quote_id.replace("Quote ID:", "").strip()
-            await ConversationIdentifier.objects.filter(quote_id=quote_id).aupdate(
-                discussion_group_id=discussion_group_id, message_id=message_id
-            )
+        if first_broker_channel_object:
+            if first_broker_channel_object.group_id == message.sender_chat.id:
+                discussion_group_id = message.chat.id
+                message_id = message.id
+                final_message = message.text.strip()
+                quote_id = final_message.split("\n")[0].strip()
+                quote_id = quote_id.replace("Quote ID:", "").strip()
+                await ConversationIdentifier.objects.filter(quote_id=quote_id).aupdate(
+                    discussion_group_id=discussion_group_id, message_id=message_id
+                )
 
     message.continue_propagation()
