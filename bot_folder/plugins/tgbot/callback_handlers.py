@@ -179,44 +179,48 @@ async def admin_choice_callback_handler(client, callback_query):
     # Get the broker channel object for the admin.(main one)
     admin_broker_channel = await BrokerChannel.objects.filter(is_user=False).afirst()
 
+    # Send the quote to the broker channel.
     try:
-        # Send the quote to the broker channel.
         temp_message = await client.send_message(admin_broker_channel.group_id, final_data)
-
         # Reply to the admin with confirmation message that the message is send to broker channel with link
         response = f"Quote sent to broker channel ([link of message in broker channel]({temp_message.link}))"
         await client.send_message(callback_query.message.chat.id, response)
 
-        # Send the quote to all the broker users
-        async for broker_user in BrokerChannel.objects.filter(is_user=True):
-            try:
-                await client.send_message(broker_user.group_id, final_data)
-
-                # Custom question
-                question = quote_id
-
-                # await Conversations.objects.filter(user_id=broker_user.group_id, question=question).adelete()
-                # await Conversations.objects.acreate(
-                #     user_id=broker_user.group_id,
-                #     question=question,
-                #     conversation_type="bot message",
-                # )
-
-                # Add a conversation object with conversation_type bot message to Conversations table
-                # as we expect a response from brokers
-                await Conversations.objects.aget_or_create(
-                    user_id=broker_user.group_id,
-                    question=question,
-                    conversation_type="bot message",
-                )
-
-            except Exception as e:
-                # Ignore the error and move on if bot cant pm a broker,
-                # users should pm bot first and shouldnt block bot
-                continue
-
     except BadRequest as e:
         logging.exception(e)
+
+    # Send the quote to all the broker users
+    async for broker_user in BrokerChannel.objects.filter(is_user=True):
+        try:
+            # Custom question
+            question = quote_id
+
+            await client.send_message(broker_user.group_id, final_data)
+
+            # await Conversations.objects.filter(user_id=broker_user.group_id, question=question).adelete()
+            # await Conversations.objects.acreate(
+            #     user_id=broker_user.group_id,
+            #     question=question,
+            #     conversation_type="bot message",
+            # )
+
+            # Add a conversation object with conversation_type bot message to Conversations table
+            # as we expect a response from brokers
+            await Conversations.objects.aget_or_create(
+                user_id=broker_user.group_id,
+                question=question,
+                conversation_type="bot message",
+            )
+
+            # remove previous pending bot message with this user other that question thats sent right not
+            await Conversations.objects.filter(user_id=broker_user.group_id, conversation_type="bot message").exclude(
+                question=question
+            ).adelete()
+
+        except Exception as e:
+            # Ignore the error and move on if bot cant pm a broker,
+            # users should pm bot first and shouldnt block bot
+            continue
 
 
 @Client.on_message(filters.private, group=1)
